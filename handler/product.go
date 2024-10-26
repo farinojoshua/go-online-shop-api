@@ -65,7 +65,7 @@ func CreateProduct(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(201, product)
+		c.JSON(http.StatusCreated, product)
 	}
 }
 
@@ -103,12 +103,20 @@ func UpdateProduct(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(201, product)
+		c.JSON(http.StatusCreated, product)
 	}
 }
 
 func DeleteProduct(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		id := c.Param("id")
 
+		err := model.DeleteProduct(db, id)
+		if err != nil {
+			log.Printf("Terjadi kesalahan saat menghapus produk: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "terjadi kesalahan pada server"})
+			return
+		}
+		c.JSON(http.StatusNoContent, gin.H{"message": "produk berhasil di hapus"})
 	}
 }

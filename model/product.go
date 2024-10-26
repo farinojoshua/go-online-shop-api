@@ -87,3 +87,17 @@ func UpdateProduct(db *sql.DB, product Product) error {
 
 	return nil
 }
+
+func DeleteProduct(db *sql.DB, id string) error {
+	if db == nil {
+		return ErrDBNil
+	}
+
+	query := `UPDATE products SET is_deleted = true WHERE id = $1;`
+	_, err := db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
