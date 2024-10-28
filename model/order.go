@@ -84,3 +84,35 @@ func CreateOrder(db *sql.DB, order Order, details []OrderDetail) error {
 
 	return nil
 }
+
+func SelectOrderByID(db *sql.DB, id string) (Order, error) {
+	if db == nil {
+		return Order{}, ErrDBNil
+	}
+
+	query := `SELECT id, email, address, passcode, grand_total, paid_at, paid_bank, paid_account_number FROM orders WHERE id = $1;`
+
+	var order Order
+
+	err := db.QueryRow(query, id).Scan(&order.ID, &order.Email, &order.Address, &order.PassCode, &order.GrandTotal, &order.PaidAt, &order.PaidBank, &order.PaidAccountNumber)
+	if err != nil {
+		return Order{}, err
+	}
+
+	return order, nil
+}
+
+func UpdateOrderByID(db *sql.DB, id string, confirm ConfirmOrder, paidAt time.Time) error {
+	if db == nil {
+		return ErrDBNil
+	}
+
+	query := `UPDATE orders SET paid_at = $1, paid_bank = $2, paid_account_number = $3 WHERE id = $4;`
+
+	_, err := db.Exec(query, paidAt, confirm.Bank, confirm.AccountNumber, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
